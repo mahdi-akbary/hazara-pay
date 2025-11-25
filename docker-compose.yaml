@@ -9,6 +9,7 @@ services:
       - '8000:80'
     volumes:
       - ./:/var/www/html
+      - ./apache.conf:/etc/apache2/sites-enabled/000-default.conf
     depends_on:
       - database
     networks:

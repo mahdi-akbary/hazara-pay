@@ -39,5 +39,6 @@ RUN chown -R www-data:www-data /var/www/html \
 # Use www-data user for running Laravel
 USER www-data
 
+RUN composer install --no-dev --optimize-autoloader 
 # Expose port 80
 EXPOSE 80
