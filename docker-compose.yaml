@@ -1,0 +1,56 @@
+services:
+
+  php:
+    build:
+      args:
+        user: dev
+        uid: 1000
+      context: ./
+      dockerfile: dockerfile
+    container_name: hazara-php
+    ports:
+      - '8000:80'
+    volumes:
+      - ./:/var/www/html
+      - ./apache.conf:/etc/apache2/sites-enabled/000-default.conf
+    depends_on:
+      - database
+    networks:
+      - hazara
+
+  node:
+    image: "node:22"
+    user: "node"
+    container_name: hazara-node
+    working_dir: /home/app
+    ports:
+      - '5173:5173'
+    volumes:
+      - ./:/home/app
+    command: bash -c "yarn && yarn build && yarn vite --host"
+    networks:
+      - hazara
+
+  database:
+    image: postgres:15
+    restart: always
+    volumes:
+      - db-data:/var/lib/postgres/data
+    environment:
+      - POSTGRES_DB=${DB_DATABASE}
+      - POSTGRES_USER=${DB_USERNAME}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+    ports:
+      - "5432:5432"
+    networks:
+      - hazara
+    env_file:
+      - .env
+
+volumes:
+  db-data:
+
+networks:
+  hazara:
+    driver: bridge
+
