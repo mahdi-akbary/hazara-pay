@@ -1,8 +1,8 @@
 FROM php:8.4-apache
 
 # Arguments defined in docker-compose.yml
-ARG user
-ARG uid
+ARG user=dev
+ARG uid=1000
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
