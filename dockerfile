@@ -1,32 +1,39 @@
 FROM php:8.4-apache
 
-# Arguments defined in docker-compose.yml
-ARG user=dev
-ARG uid=1000
-
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
     git \
     curl \
     zip \
-    libpng-dev \
     unzip \
+    libpng-dev \
     libzip-dev \
     libicu-dev \
     build-essential \
     g++ \
     zlib1g-dev \
-    libpq-dev
+    libpq-dev \
+    && rm -rf /var/lib/apt/lists/*
 
 # Install PHP extensions
 RUN docker-php-ext-install gd zip intl pdo_pgsql pgsql && a2enmod rewrite
 
-# Get latest Composer
-COPY --from=composer:2.9.2 /usr/bin/composer /usr/bin/composer
+# Install Composer globally
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
-# Create system user to run Composer and Artisan Commands
-RUN useradd -G www-data,root -u $uid -d /home/$user $user
-RUN mkdir -p /home/$user/.composer && \
-    chown -R $user:$user /home/$user
 # Set working directory
 WORKDIR /var/www/html
+
+# Copy Laravel app
+COPY . /var/www/html
+
+# Fix permissions so Apache can serve Laravel
+RUN chown -R www-data:www-data /var/www/html \
+    && find /var/www/html -type d -exec chmod 755 {} \; \
+    && find /var/www/html -type f -exec chmod 644 {} \;
+
+# Use www-data as runtime user
+USER www-data
+
+# Expose port 80
+EXPOSE 80

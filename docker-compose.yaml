@@ -3,7 +3,7 @@ services:
   php:
     build:
       args:
-        user: dev
+        user: laravel
         uid: 1000
       context: ./
       dockerfile: dockerfile
