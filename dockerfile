@@ -1,3 +1,4 @@
+# Base image
 FROM php:8.4-apache
 
 # Install system dependencies
@@ -27,12 +28,15 @@ WORKDIR /var/www/html
 # Copy Laravel app
 COPY . /var/www/html
 
-# Fix permissions so Apache can serve Laravel
+# Copy custom Apache config
+COPY apache.conf /etc/apache2/sites-enabled/000-default.conf
+
+# Fix permissions for Apache (www-data)
 RUN chown -R www-data:www-data /var/www/html \
     && find /var/www/html -type d -exec chmod 755 {} \; \
     && find /var/www/html -type f -exec chmod 644 {} \;
 
-# Use www-data as runtime user
+# Use www-data user for running Laravel
 USER www-data
 
 # Expose port 80
